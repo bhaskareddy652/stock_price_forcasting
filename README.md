@@ -1,1 +1,1 @@
-# stock_price_forcasting
+# Apple Stock Price Forecasting
