@@ -44,13 +44,13 @@ Definition: A numerical score (-1 to +1) indicating public perception of Apple s
 
 Impact: Investors use sentiment analysis to gauge public reaction to earnings reports, lawsuits, product launches, etc.
 
-# Challenges
+## Challenges
 
-## 1.Outliers in the dataset – Handle them properly instead of dropping samples.
+# 1.Outliers in the dataset – Handle them properly instead of dropping samples.
 
-## 2.Missing values – Fill them using appropriate imputation techniques.
+# 2.Missing values – Fill them using appropriate imputation techniques.
 
-## 3.Stock market trading hours:
+# 3.Stock market trading hours:
 
   Regular Trading: 9:30 AM - 4:00 PM ET (Monday-Friday, excluding holidays)
 
