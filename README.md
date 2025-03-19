@@ -71,16 +71,24 @@ SARIMA (Seasonal ARIMA)
 
 VAR (Vector AutoRegression)
 
-Machine Learning Models
+# Machine Learning Models
 
 Random Forest Regressor
 
 XGBoost / LightGBM (Boosting Algorithms)
 
-Deep Learning Models
+# Deep Learning Models
 
 LSTM (Long Short-Term Memory)
 
-Facebook Prophet
+# Next Steps
 
-Hybrid Models (Combining ML and Deep Learning approaches)
+Data Preprocessing: Handle missing values, outliers, and ensure data quality.
+
+Feature Engineering: Transform variables to improve model performance.
+
+Model Selection & Evaluation: Compare different models to find the best fit.
+
+Deployment: Deploy the best-performing model for real-time forecasting.
+
+🚀 Let's build a powerful stock price forecasting model!
