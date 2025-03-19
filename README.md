@@ -45,10 +45,11 @@ Definition: A numerical score (-1 to +1) indicating public perception of Apple s
 Impact: Investors use sentiment analysis to gauge public reaction to earnings reports, lawsuits, product launches, etc.
 
 ## Challenges
+1.Outliers in the dataset – Handle them properly instead of dropping samples.
 
-## 1.Outliers in the dataset – Handle them properly instead of dropping samples.
-## 2.Missing values – Fill them using appropriate imputation techniques.
-## 3.Stock market trading hours:
+2.Missing values – Fill them using appropriate imputation techniques.
+
+3.Stock market trading hours:
 
   Regular Trading: 9:30 AM - 4:00 PM ET (Monday-Friday, excluding holidays)
 
@@ -57,4 +58,29 @@ Impact: Investors use sentiment analysis to gauge public reaction to earnings re
   After-Hours: 4:00 PM - 8:00 PM ET
 
   Exclude Saturday & Sunday data
+  
+# Suggested Models
 
+To build a robust predictive model, multiple features and transformations may be required. Below are suitable models:
+
+# Time Series Models
+
+ARIMA (AutoRegressive Integrated Moving Average)
+
+SARIMA (Seasonal ARIMA)
+
+VAR (Vector AutoRegression)
+
+Machine Learning Models
+
+Random Forest Regressor
+
+XGBoost / LightGBM (Boosting Algorithms)
+
+Deep Learning Models
+
+LSTM (Long Short-Term Memory)
+
+Facebook Prophet
+
+Hybrid Models (Combining ML and Deep Learning approaches)
