@@ -1,137 +1,65 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "0389f42b-7e9f-4dfb-bc9e-4893a9ff0669",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import streamlit as st\n",
-    "import pandas as pd\n",
-    "import numpy as np\n",
-    "import matplotlib.pyplot as plt\n",
-    "from sklearn.model_selection import train_test_split, GridSearchCV\n",
-    "from sklearn.ensemble import RandomForestRegressor\n",
-    "from sklearn.preprocessing import StandardScaler\n",
-    "from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n",
-    "\n",
-    "st.title(\"📈 30-Day Stock Price Forecasting App\")\n",
-    "\n",
-    "uploaded_file = st.file_uploader(\"Upload your CSV file\", type=[\"csv\"])\n",
-    "\n",
-    "if uploaded_file:\n",
-    "    df = pd.read_csv(uploaded_file)\n",
-    "    st.subheader(\"📊 Dataset Preview\")\n",
-    "    st.write(df.head())\n",
-    "\n",
-    "    # Feature and target selection\n",
-    "    features = ['nasdaq_index', 'sp500_index', 'inflation_rate', 'unemployment_rate', 'interest_rate', 'market_sentiment']\n",
-    "    target = 'stock_price'\n",
-    "\n",
-    "    if all(col in df.columns for col in features + [target]):\n",
-    "        X = df[features]\n",
-    "        y = df[target]\n",
-    "\n",
-    "        # Split and scale\n",
-    "        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
-    "        scaler = StandardScaler()\n",
-    "        X_train = scaler.fit_transform(X_train)\n",
-    "        X_test = scaler.transform(X_test)\n",
-    "\n",
-    "        # Random Forest Regressor with hyperparameter tuning\n",
-    "        rf = RandomForestRegressor(random_state=42)\n",
-    "        param_grid = {\n",
-    "            'n_estimators': [50, 100, 150],\n",
-    "            'max_depth': [5, 10, 15],\n",
-    "            'min_samples_split': [2, 5],\n",
-    "            'min_samples_leaf': [1, 2],\n",
-    "        }\n",
-    "        grid_search = GridSearchCV(rf, param_grid, cv=3, n_jobs=-1, scoring='r2')\n",
-    "        grid_search.fit(X_train, y_train)\n",
-    "\n",
-    "        best_rf = grid_search.best_estimator_\n",
-    "        y_pred = best_rf.predict(X_test)\n",
-    "\n",
-    "        # Evaluation\n",
-    "        st.subheader(\"📈 Model Performance\")\n",
-    "        st.write(f\"**Best Parameters:** {grid_search.best_params_}\")\n",
-    "        st.write(f\"**MAE:** {mean_absolute_error(y_test, y_pred):.2f}\")\n",
-    "        st.write(f\"**MSE:** {mean_squared_error(y_test, y_pred):.2f}\")\n",
-    "        st.write(f\"**RMSE:** {np.sqrt(mean_squared_error(y_test, y_pred)):.2f}\")\n",
-    "        st.write(f\"**R² Score:** {r2_score(y_test, y_pred):.2f}\")\n",
-    "\n",
-    "        # Forecast next 30 days\n",
-    "        st.subheader(\"🔮 30-Day Forecast\")\n",
-    "\n",
-    "        future_data = pd.DataFrame([X.mean()] * 30, columns=X.columns)\n",
-    "        future_scaled = scaler.transform(future_data)\n",
-    "        future_preds = best_rf.predict(future_scaled)\n",
-    "\n",
-    "        # Plot\n",
-    "        fig, ax = plt.subplots()\n",
-    "        ax.plot(range(1, 31), future_preds, marker='o', linestyle='-', color='blue')\n",
-    "        ax.set_title('30-Day Stock Price Forecast')\n",
-    "        ax.set_xlabel('Day')\n",
-    "        ax.set_ylabel('Predicted Stock Price')\n",
-    "        st.pyplot(fig)\n",
-    "\n",
-    "    else:\n",
-    "        st.error(\"❌ Your dataset is missing required columns.\")\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "3a9d0ded-a0ae-497f-95ef-d6c09e0b5dbc",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "30a62878-bd45-4f67-8a54-5897ce4dc450",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "5bfbbd45-4396-45be-98a9-7cf2d29589e9",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "292f6cef-488c-40dd-bf1d-d17c92f2c5ab",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3 (ipykernel)",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.11.7"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+st.title("📈 30-Day Stock Price Forecasting App")
+
+# Sidebar for configuration
+st.sidebar.header("Settings")
+test_size = st.sidebar.slider("Test Size Ratio", 0.1, 0.5, 0.2, 0.05)
+n_days = st.sidebar.number_input("Forecast Days", 30, 90, 30)
+
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+
+if uploaded_file is not None:
+    try:
+        df = pd.read_csv(uploaded_file)
+        
+        st.subheader("📊 Dataset Preview")
+        st.write(df.head())
+
+        # Let user select features and target
+        all_columns = df.columns.tolist()
+        features = st.multiselect(
+            "Select features", 
+            all_columns, 
+            default=all_columns[:-1]  # Default to all columns except last
+        )
+        target = st.selectbox(
+            "Select target variable", 
+            all_columns, 
+            index=len(all_columns)-1
+        )
+
+        if not features:
+            st.error("❌ Please select at least one feature")
+            st.stop()
+
+        if len(df) < 30:
+            st.error("❌ Dataset needs at least 30 observations")
+            st.stop()
+
+        # Prepare data
+        X = df[features]
+        y = df[target]
+
+        # Train-test split
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, 
+            test_size=test_size, 
+            random_state=42
+        )
+
+        # Scale features
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+
+        # Train model
+        with st.spinner('Training model...'):
+            model = RandomForestRegressor
