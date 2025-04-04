@@ -62,4 +62,56 @@ if uploaded_file is not None:
 
         # Train model
         with st.spinner('Training model...'):
-            model = RandomForestRegressor
+            try:
+                model = RandomForestRegressor(random_state=42)
+                param_grid = {
+                    'n_estimators': [50, 100, 150],
+                    'max_depth': [5, 10, 15, None],
+                    'min_samples_split': [2, 5, 10],
+                }
+                grid_search = GridSearchCV(model, param_grid, cv=3, n_jobs=-1)
+                grid_search.fit(X_train_scaled, y_train)
+                best_model = grid_search.best_estimator_
+            except Exception as e:
+                st.error(f"❌ Model training failed: {str(e)}")
+                st.stop()
+
+        # Evaluate
+        y_pred = best_model.predict(X_test_scaled)
+        
+        st.subheader("📈 Model Performance")
+        st.write(f"**Best Parameters:** {grid_search.best_params_}")
+        
+        col1, col2 = st.columns(2)
+        col1.metric("MAE", f"{mean_absolute_error(y_test, y_pred):.2f}")
+        col1.metric("R² Score", f"{r2_score(y_test, y_pred):.2f}")
+        col2.metric("RMSE", f"{np.sqrt(mean_squared_error(y_test, y_pred)):.2f}")
+
+        # Forecast
+        st.subheader(f"🔮 {n_days}-Day Forecast")
+        last_values = X.iloc[-1:].values
+        future_data = pd.DataFrame(
+            np.repeat(last_values, n_days, axis=0), 
+            columns=X.columns
+        )
+        future_scaled = scaler.transform(future_data)
+        forecast = best_model.predict(future_scaled)
+
+        # Plot forecast
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.plot(range(1, n_days+1), forecast, 'b-', marker='o')
+        ax.set_title(f"{n_days}-Day Price Forecast")
+        ax.set_xlabel("Day")
+        ax.set_ylabel("Predicted Price")
+        ax.grid(True)
+        st.pyplot(fig)
+
+        # Show forecast table
+        forecast_df = pd.DataFrame({
+            "Day": range(1, n_days+1),
+            "Predicted Price": forecast
+        })
+        st.dataframe(forecast_df.style.format({"Predicted Price": "{:.2f}"}))
+
+    except Exception as e:
+        st.error(f"❌ Error: {str(e)}")
