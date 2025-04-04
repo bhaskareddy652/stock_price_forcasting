@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from datetime import datetime
 
 st.title("📈 30-Day Stock Price Forecasting App")
 
@@ -20,20 +21,32 @@ if uploaded_file is not None:
     try:
         df = pd.read_csv(uploaded_file)
         
+        # Convert date columns to datetime and extract features
+        date_columns = [col for col in df.columns if 'date' in col.lower() or 'time' in col.lower()]
+        for col in date_columns:
+            df[col] = pd.to_datetime(df[col])
+            df[f'{col}_year'] = df[col].dt.year
+            df[f'{col}_month'] = df[col].dt.month
+            df[f'{col}_day'] = df[col].dt.day
+            df[f'{col}_dayofweek'] = df[col].dt.dayofweek
+            df[f'{col}_dayofyear'] = df[col].dt.dayofyear
+            df[f'{col}_weekofyear'] = df[col].dt.isocalendar().week
+            df = df.drop(col, axis=1)
+        
         st.subheader("📊 Dataset Preview")
         st.write(df.head())
 
         # Let user select features and target
-        all_columns = df.columns.tolist()
+        all_columns = [col for col in df.columns if col != target]
         features = st.multiselect(
             "Select features", 
             all_columns, 
-            default=all_columns[:-1]  # Default to all columns except last
+            default=all_columns[:min(5, len(all_columns))]  # Default to first 5 columns
         )
         target = st.selectbox(
             "Select target variable", 
-            all_columns, 
-            index=len(all_columns)-1
+            df.columns, 
+            index=len(df.columns)-1
         )
 
         if not features:
@@ -87,6 +100,14 @@ if uploaded_file is not None:
         col1.metric("R² Score", f"{r2_score(y_test, y_pred):.2f}")
         col2.metric("RMSE", f"{np.sqrt(mean_squared_error(y_test, y_pred)):.2f}")
 
+        # Feature Importance
+        st.subheader("🔍 Feature Importance")
+        importance = pd.DataFrame({
+            'Feature': features,
+            'Importance': best_model.feature_importances_
+        }).sort_values('Importance', ascending=False)
+        st.bar_chart(importance.set_index('Feature'))
+
         # Forecast
         st.subheader(f"🔮 {n_days}-Day Forecast")
         last_values = X.iloc[-1:].values
@@ -94,6 +115,26 @@ if uploaded_file is not None:
             np.repeat(last_values, n_days, axis=0), 
             columns=X.columns
         )
+        
+        # For date features in forecast, increment them properly
+        if any('date' in col for col in X.columns):
+            last_date = df.index[-1]
+            for i in range(n_days):
+                future_date = last_date + pd.Timedelta(days=i+1)
+                for col in [c for c in X.columns if 'date' in c]:
+                    if '_year' in col:
+                        future_data.loc[i, col] = future_date.year
+                    elif '_month' in col:
+                        future_data.loc[i, col] = future_date.month
+                    elif '_day' in col:
+                        future_data.loc[i, col] = future_date.day
+                    elif '_dayofweek' in col:
+                        future_data.loc[i, col] = future_date.dayofweek
+                    elif '_dayofyear' in col:
+                        future_data.loc[i, col] = future_date.dayofyear
+                    elif '_weekofyear' in col:
+                        future_data.loc[i, col] = future_date.week
+        
         future_scaled = scaler.transform(future_data)
         forecast = best_model.predict(future_scaled)
 
